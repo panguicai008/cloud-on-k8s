@@ -8,18 +8,18 @@ agents:
   memory: "4G"
 
 steps:
-  - command: 'echo "hello world!"'
-
 # steps:
 #   - group: build
 #     steps:
 #       - command: "make e2e-docker-multiarch-build"
 #       - command: "make build-operator-image"
-#       #- command: "make run-deployer apply-psp"
+#       - command: "make run-deployer apply-psp"
 
   - group: checks
     steps:
       - command: "make generate lint check-local-changes"
+        agents:
+          memory: "5G"
       - command: "make check-license-header check-predicates shellcheck"
       - command: "make reattach-pv"
 
@@ -28,7 +28,5 @@ steps:
     - command: "make unit-xml"
     - command: "make integration-xml"
 
-  # - command: make "set-kubeconfig e2e-run"
-  # - wait: ~
-  #   continue_on_failure: tru
-  # - command: make "e2e-generate-xml"
+#  - wait
+#  - command: make "set-kubeconfig e2e-run e2e-generate-xml"
