@@ -15,19 +15,16 @@ steps:
 #       - command: "make build-operator-image"
 #       #- command: "make run-deployer apply-psp"
 
-#   - group: checks
-#     steps:
-#     - command: "make clean lint check-local-changes"
-#     - command: "make generate check-local-changes"
-#     - command: "make check-license-header"
-#     - command: "make check-predicates"
-#     - command: "make shellcheck"
-#     - command: "make reattach-pv"
+  - group: checks
+    steps:
+      - command: "make generate lint check-local-changes"
+      - command: "make check-license-header check-predicates shellcheck"
+      - command: "make reattach-pv"
 
-#   - group: tests
-#     steps:
-#     - command: "make unit-xml"
-#     - command: "make integration-xml"
+  - group: tests
+    steps:
+    - command: "make unit-xml"
+    - command: "make integration-xml"
 
   # - command: make "set-kubeconfig e2e-run"
   # - wait: ~
