@@ -2,8 +2,8 @@
 #   - github_commit_status:
 #       context: "ci/tests"
 
-# agents:
-#   image: "docker.elastic.co/eck-dev/bk-agent:latest"
+agents:
+  image: "docker.elastic.co/eck-dev/bk-agent:latest"
 
 steps:
   - command: 'echo "hello world!"'
