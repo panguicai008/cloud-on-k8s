@@ -5,7 +5,7 @@
 agents:
   image: "docker.elastic.co/eck-dev/bk-agent:latest"
   cpu: "4"
-  memory: "2G"
+  memory: "4G"
 
 steps:
 # steps:
@@ -19,7 +19,7 @@ steps:
     steps:
       - command: "make generate lint check-local-changes"
         agents:
-          memory: "10G"
+          memory: "5G"
       - command: "make check-license-header check-predicates shellcheck"
       - command: "make reattach-pv"
 
