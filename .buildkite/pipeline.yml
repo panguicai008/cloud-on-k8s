@@ -19,13 +19,13 @@ steps:
 
       - label: ":docker: operator container image"
         commands:
-          - make -sC .ci get-test-artifacts
+          - make -sC .ci get-test-artifacts-bk
           - .ci/setenvconfig pr
           - make operator-buildah
 
       - label: ":docker: e2e-tests container image"
         commands:
-          - make -sC .ci get-test-artifacts
+          - make -sC .ci get-test-artifacts-bk
           - .ci/setenvconfig pr
           - make e2e-buildah
 

@@ -90,6 +90,7 @@ RUN curl -Lfs -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/ma
 ENV GOPATH /go
 ENV GO_VERSION=1.18.3
 RUN gimme ${GO_VERSION}
+ENV GOROOT /root/.gimme/versions/go${GO_VERSION}.linux.amd64
 ENV PATH /root/.gimme/versions/go${GO_VERSION}.linux.amd64/bin:${PATH}
 
-WORKDIR /
+WORKDIR /go/src/github.com/elastic

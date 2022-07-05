@@ -105,6 +105,11 @@ monitoring-secrets.json:
 license.key:
 	@ VAULT_TOKEN=$(VAULT_TOKEN) $(vault) read -address=$(VAULT_ADDR) -field=$(SECRET_FIELD_PREFIX)pubkey secret/devops-ci/cloud-on-k8s/license | base64 --decode > license.key
 
+get-test-artifacts-bk:
+	@ VAULT_TOKEN=$(VAULT_TOKEN) $(vault) read -address=$(VAULT_ADDR) -field=dev-privkey secret/ci/elastic-cloud-on-k8s/license | base64 --decode > dev-private.key
+	@ VAULT_TOKEN=$(VAULT_TOKEN) $(vault) read -address=$(VAULT_ADDR) -field=$(SECRET_FIELD_PREFIX)enterprise secret/ci/elastic-cloud-on-k8s/test-licenses > test-license.json
+	@ VAULT_TOKEN=$(VAULT_TOKEN) $(vault) read -address=$(VAULT_ADDR) -field=data -format=json secret/ci/elastic-cloud-on-k8s/monitoring-cluster > monitoring-secrets.json
+	@ VAULT_TOKEN=$(VAULT_TOKEN) $(vault) read -address=$(VAULT_ADDR) -field=$(SECRET_FIELD_PREFIX)pubkey secret/ci/elastic-cloud-on-k8s/license | base64 --decode > license.key
 
 ##  Release
 
