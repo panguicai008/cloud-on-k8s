@@ -511,6 +511,10 @@ IMG_SUFFIX=-ci
 REGISTRY_NAMESPACE=eck-snapshots
 E2E_REGISTRY_NAMESPACE=eck-ci
 
+# FIXME: testing
+REGISTRY_NAMESPACE=eck-dev
+E2E_REGISTRY_NAMESPACE=eck-dev
+
 GO_TAGS=release
 export LICENSE_PUBKEY=$(pwd)/.ci/license.key
 
