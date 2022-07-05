@@ -13,10 +13,9 @@ import (
 )
 
 const (
-	GKEDriverID                     = "gke"
-	GKEVaultPath                    = "secret/devops-ci/cloud-on-k8s/ci-gcp-k8s-operator"
-	GKEServiceAccountVaultFieldName = "service-account"
-	DefaultGKERunConfigTemplate     = `id: gke-dev
+	GKEDriverID                 = "gke"
+	GKEVaultPath                = GKEVaultRootPath + "ci-gcp-k8s-operator"
+	DefaultGKERunConfigTemplate = `id: gke-dev
 overrides:
   clusterName: %s-dev-cluster
   gke:
@@ -79,7 +78,7 @@ func (gdf *GKEDriverFactory) Create(plan Plan) (Driver, error) {
 
 func (d *GKEDriver) Execute() error {
 	if err := authToGCP(
-		d.plan.VaultInfo, GKEVaultPath, GKEServiceAccountVaultFieldName,
+		d.plan.VaultInfo, GKEVaultPath,
 		d.plan.ServiceAccount, false, d.ctx["GCloudProject"],
 	); err != nil {
 		return err
@@ -200,6 +199,13 @@ func (d *GKEDriver) bindRoles() error {
 }
 
 func (d *GKEDriver) GetCredentials() error {
+	if err := authToGCP(
+		d.plan.VaultInfo, GKEVaultPath,
+		d.plan.ServiceAccount, false, d.ctx["GCloudProject"],
+	); err != nil {
+		return err
+	}
+
 	log.Println("Getting credentials...")
 	cmd := "gcloud container clusters --project {{.GCloudProject}} get-credentials {{.ClusterName}} --region {{.Region}}"
 	return exec.NewCommand(cmd).AsTemplate(d.ctx).Run()

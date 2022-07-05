@@ -22,12 +22,11 @@ import (
 )
 
 const (
-	OCPDriverID                     = "ocp"
-	OCPVaultPath                    = "secret/devops-ci/cloud-on-k8s/ci-ocp-k8s-operator"
-	OCPServiceAccountVaultFieldName = "service-account"
-	OCPPullSecretFieldName          = "pull-secret"
-	OCPStateBucket                  = "eck-deployer-ocp-clusters-state"
-	DefaultOCPRunConfigTemplate     = `id: ocp-dev
+	OCPDriverID                 = "ocp"
+	OCPVaultPath                = "secret/devops-ci/cloud-on-k8s/ci-ocp-k8s-operator"
+	OCPPullSecretFieldName      = "pull-secret"
+	OCPStateBucket              = "eck-deployer-ocp-clusters-state"
+	DefaultOCPRunConfigTemplate = `id: ocp-dev
 overrides:
   clusterName: %s-dev-cluster
   ocp:
@@ -296,7 +295,7 @@ func (d *OCPDriver) authToGCP() error {
 	}
 
 	if err := authToGCP(
-		d.plan.VaultInfo, OCPVaultPath, OCPServiceAccountVaultFieldName,
+		d.plan.VaultInfo, OCPVaultPath,
 		d.plan.ServiceAccount, false, d.plan.Ocp.GCloudProject,
 	); err != nil {
 		return err

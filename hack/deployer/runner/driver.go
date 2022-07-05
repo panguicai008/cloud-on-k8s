@@ -14,6 +14,9 @@ import (
 const (
 	CreateAction = "create"
 	DeleteAction = "delete"
+
+	// GKEVaultRootPath = "secret/devops-ci/cloud-on-k8s"
+	GKEVaultRootPath = "secret/ci/elastic-cloud-on-k8s/"
 )
 
 var (

@@ -35,7 +35,8 @@ steps:
       - label: ":go: lint"
         command: "make lint check-local-changes"
         agents:
-          memory: "5G"
+          cpu: "6"
+          memory: "6G"
 
       - label: ":go: generate"
         command: "make generate check-local-changes"
@@ -56,14 +57,24 @@ steps:
         agents:
           memory: "4G"
 
-  # - group: e2e-tests
-  #   steps:
-  #   - command: ".ci/setenvconfig pr && make run-deployer apply-psp"
-  #   - wait
-  #   - command: ".ci/setenvconfig pr && make e2e-run"
-  #   - wait: ~
-  #     continue_on_failure: true
-  #   - command: ".ci/setenvconfig cleanup/gke && make run-deployer"
+  - group: e2e-tests
+    steps:
+    
+    - label: ":k8s: create k8s"
+      commands:
+        - .ci/setenvconfig pr
+        - make run-deployer apply-psp
 
-#  - wait
-#  - command: make "set-kubeconfig e2e-run e2e-generate-xml"
+    - wait
+    - label: ":k8s: e2e-tests"
+      commands:
+        - make -sC .ci get-test-artifacts-bk
+        - .ci/setenvconfig pr
+        - make set-kubeconfig e2e-run e2e-generate-xml
+      agents:
+        memory: "6G"
+
+    - wait: ~
+      continue_on_failure: true
+    - label: ":k8s: delete k8s"
+      command: ".ci/setenvconfig cleanup/gke && make run-deployer"
