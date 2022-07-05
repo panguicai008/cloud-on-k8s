@@ -426,12 +426,12 @@ docker-push:
 	@ hack/docker.sh -l -p $(OPERATOR_IMAGE)
 
 operator-buildah: go-generate generate-config-file buildah-login
-	buildah bud . \
+	buildah bud \
 		--build-arg GO_LDFLAGS='$(GO_LDFLAGS)' \
 		--build-arg GO_TAGS='$(GO_TAGS)' \
 		--build-arg VERSION='$(VERSION)' \
 		--platform $(BUILD_PLATFORM) \
-		-t $(OPERATOR_IMAGE)
+		-t $(OPERATOR_IMAGE) .
 	buildah push $(OPERATOR_IMAGE)
 
 purge-gcr-images:

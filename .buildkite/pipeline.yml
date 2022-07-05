@@ -20,8 +20,6 @@ steps:
       - label: ":docker: operator container image"
         commands:
           - make -sC .ci get-test-artifacts-bk
-          - pwd
-          - ls -al
           - .ci/setenvconfig pr
           - make operator-buildah
 
