@@ -48,9 +48,13 @@ steps:
 
       - label: ":go: unit-tests"
         command: "make unit-xml"
+        agents:
+          memory: "4G"
 
       - label: ":go: integration-tests"
         command: "make integration-xml"
+        agents:
+          memory: "4G"
 
   # - group: e2e-tests
   #   steps:
