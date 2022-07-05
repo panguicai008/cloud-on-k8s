@@ -3,9 +3,12 @@
 set -euo pipefail
 
 source .buildkite/steps/container/lib.sh
+# shellcheck disable=SC1091
 source .env
 
 REGISTRY=docker.elastic.co
+
+E2E_REGISTRY_NAMESPACE=eck-dev # TEMPORARY - testing
 TAG=$(get_current_sha1)
 IMG=${REGISTRY}/${E2E_REGISTRY_NAMESPACE}/eck-e2e-tests:${TAG}
 

@@ -171,7 +171,7 @@ manifest-gen-test:
 	hack/manifest-gen/test.sh
 
 shellcheck:
-	shellcheck $(shell find . -type f -name "*.sh" -not -path "./vendor/*")
+	shellcheck -x $(shell find . -type f -name "*.sh" -not -path "./vendor/*")
 
 upgrade-test: docker-build docker-push
 	@hack/upgrade-test-harness/run.sh

@@ -3,7 +3,7 @@
 set -euo pipefail
 
 get_current_sha1() {
-	git config --global --add safe.directory $(pwd)
+	git config --global --add safe.directory "$(pwd)"
 	git rev-parse --short=8 --verify HEAD
 }
 
