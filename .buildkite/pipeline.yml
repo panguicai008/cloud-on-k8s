@@ -8,12 +8,24 @@ agents:
   memory: "4G"
 
 steps:
-# steps:
-#   - group: build
-#     steps:
-#       - command: "make e2e-docker-multiarch-build"
-#       - command: "make build-operator-image"
-#       - command: "make run-deployer apply-psp"
+  # - group: build
+  #   steps:
+  #     - command: "make e2e-docker-multiarch-build"
+  #     - command: "make build-operator-image"
+  #     - command: "make run-deployer apply-psp"
+
+  - group: "build"
+    steps:
+      - command: ".ci/setenvconfig pr && .buildkite/steps/container/e2e-tests.sh"
+        agents:
+          image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
+          ephemeralStorage: "10G"
+          memory: "2G"
+      # - command: ".buildkite/steps/container/operator.sh"
+      #   agents:
+      #     image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
+      #     ephemeralStorage: "10G"
+      #     memory: "2G"
 
   - group: checks
     steps:
@@ -25,8 +37,17 @@ steps:
 
   - group: tests
     steps:
-    - command: "make unit-xml"
-    - command: "make integration-xml"
+      - command: "make unit-xml"
+      - command: "make integration-xml"
+
+  # - group: e2e-tests
+  #   steps:
+  #   - command: ".ci/setenvconfig pr && make run-deployer apply-psp"
+  #   - wait
+  #   - command: ".ci/setenvconfig pr && make e2e-run"
+  #   - wait: ~
+  #     continue_on_failure: true
+  #   - command: ".ci/setenvconfig cleanup/gke && make run-deployer"
 
 #  - wait
 #  - command: make "set-kubeconfig e2e-run e2e-generate-xml"
