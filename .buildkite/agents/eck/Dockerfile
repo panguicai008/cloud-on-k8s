@@ -82,7 +82,7 @@ RUN curl -fsSLO "https://github.com/weaveworks/eksctl/releases/download/v${EKSCT
     rm eksctl_Linux_amd64.tar.gz
 
 # git make
-RUN dnf -y install git make
+RUN dnf -y install git make gcc
 
 # golang
 ENV GO_VERSION=1.18.3

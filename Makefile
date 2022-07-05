@@ -371,7 +371,7 @@ switch-tanzu:
 BUILD_PLATFORM ?= "linux/amd64,linux/arm64"
 
 buildah-login:
-	buildah login \
+	@ buildah login \
 		--username="$(shell vault read -field=username secret/ci/elastic-cloud-on-k8s/docker-registry)" \
 		--password="$(shell vault read -field=password secret/ci/elastic-cloud-on-k8s/docker-registry)" \
 		$(REGISTRY)
