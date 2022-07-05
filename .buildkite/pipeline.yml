@@ -16,29 +16,36 @@ steps:
 
   - group: "build"
     steps:
-      - command: ".ci/setenvconfig pr && .buildkite/steps/container/e2e-tests.sh"
+      - label: ":docker: build and push operator container image"
+        command: ".ci/setenvconfig pr && .buildkite/steps/container/operator.sh"
         agents:
           image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
           ephemeralStorage: "10G"
           memory: "2G"
-      # - command: ".buildkite/steps/container/operator.sh"
-      #   agents:
-      #     image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
-      #     ephemeralStorage: "10G"
-      #     memory: "2G"
+      - label: ":docker: build and push e2e-tests container image"
+        command: ".ci/setenvconfig pr && .buildkite/steps/container/e2e-tests.sh"
+        agents:
+          image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
+          ephemeralStorage: "10G"
+          memory: "2G"
 
   - group: checks
     steps:
-      - command: "make generate lint check-local-changes"
+      - label: ":go: lint"
+        command: "make lint check-local-changes"
         agents:
           memory: "5G"
-      - command: "make check-license-header check-predicates shellcheck"
-      - command: "make reattach-pv"
+      - label: ":go: generate"
+        command: "make generate check-local-changes"
+      - label: ":go: checks"
+        command: "make check-license-header check-predicates shellcheck reattach-pv"
 
   - group: tests
     steps:
-      - command: "make unit-xml"
-      - command: "make integration-xml"
+      - label: ":go: unit-tests"
+        command: "make unit-xml"
+      - label: ":go: integration-tests"
+        command: "make integration-xml"
 
   # - group: e2e-tests
   #   steps:

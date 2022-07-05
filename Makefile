@@ -165,7 +165,7 @@ integration-xml: clean generate-crds-v1
 	ECK_TEST_LOG_LEVEL=$(LOG_VERBOSITY) gotestsum --junitfile integration-tests.xml -- -tags='$(GO_TAGS)' -cover ./pkg/... ./cmd/... $(TEST_OPTS)
 
 lint:
-	GOGC=50 golangci-lint run --verbose
+	time golangci-lint run --verbose
 
 manifest-gen-test:
 	hack/manifest-gen/test.sh

@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 source .buildkite/steps/container/lib.sh
@@ -7,19 +6,20 @@ source .buildkite/steps/container/lib.sh
 source .env
 
 REGISTRY=docker.elastic.co
+NAMESPACE=${E2E_REGISTRY_NAMESPACE} # .env
+NAME=eck-e2e-tests                  # Makefile
 
-E2E_REGISTRY_NAMESPACE=eck-dev # TEMPORARY - testing
-TAG=$(get_current_sha1)
-IMG=${REGISTRY}/${E2E_REGISTRY_NAMESPACE}/eck-e2e-tests:${TAG}
+NAMESPACE=eck-dev # TEMPORARY - testing
 
+img="${REGISTRY}/${NAMESPACE}/${NAME}:$(get_tag)"
 
-images_registry_login
+registry_login
 
 buildah bud \
-	--platform "${BUILD_PLATFORM}" \
-	--build-arg E2E_JSON="${E2E_JSON}" \
-	--build-arg E2E_TAGS="'e2e ${GO_TAGS}'" \
-	-f test/e2e/Dockerfile \
-	-t "${IMG}"
+  --platform "${BUILD_PLATFORM}" \
+  --build-arg E2E_JSON="${E2E_JSON}" \
+  --build-arg E2E_TAGS="e2e ${GO_TAGS}" \
+  -f test/e2e/Dockerfile \
+  -t "${img}"
 
-buildah push "${IMG}"
+buildah push "${img}"
