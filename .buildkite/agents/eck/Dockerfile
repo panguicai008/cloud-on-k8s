@@ -85,12 +85,10 @@ RUN curl -fsSLO "https://github.com/weaveworks/eksctl/releases/download/v${EKSCT
 RUN dnf -y install git make
 
 # golang
-RUN curl -Lfs -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme \
-    && chmod +x /bin/gimme
-ENV GOPATH /go
 ENV GO_VERSION=1.18.3
-RUN gimme ${GO_VERSION}
-ENV GOROOT /root/.gimme/versions/go${GO_VERSION}.linux.amd64
-ENV PATH /root/.gimme/versions/go${GO_VERSION}.linux.amd64/bin:${PATH}
+RUN curl -fsSLO "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" && \
+    tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
+ENV GOPATH /go
+ENV PATH /usr/local/go/bin:${PATH}
 
 WORKDIR /go/src/github.com/elastic
