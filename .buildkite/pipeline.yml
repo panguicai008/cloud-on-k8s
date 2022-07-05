@@ -5,7 +5,7 @@
 agents:
   image: "docker.elastic.co/eck-dev/bk-agent:latest"
   cpu: "4"
-  memory: "4G"
+  memory: "2G"
 
 steps:
   # - group: build
@@ -16,34 +16,39 @@ steps:
 
   - group: "build"
     steps:
-      - label: ":docker: build and push operator container image"
-        command: ".ci/setenvconfig pr && .buildkite/steps/container/operator.sh"
-        agents:
-          image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
-          ephemeralStorage: "10G"
-          memory: "2G"
-      - label: ":docker: build and push e2e-tests container image"
-        command: ".ci/setenvconfig pr && .buildkite/steps/container/e2e-tests.sh"
-        agents:
-          image: "docker.elastic.co/ci-agent-images/drivah:0.15.0"
-          ephemeralStorage: "10G"
-          memory: "2G"
+
+      - label: ":docker: operator container image"
+        commands:
+          - make -sC .ci get-test-artifacts
+          - .ci/setenvconfig pr
+          - make operator-buildah
+
+      - label: ":docker: e2e-tests container image"
+        commands:
+          - make -sC .ci get-test-artifacts
+          - .ci/setenvconfig pr
+          - make e2e-buildah
 
   - group: checks
     steps:
+
       - label: ":go: lint"
         command: "make lint check-local-changes"
         agents:
           memory: "5G"
+
       - label: ":go: generate"
         command: "make generate check-local-changes"
+
       - label: ":go: checks"
         command: "make check-license-header check-predicates shellcheck reattach-pv"
 
   - group: tests
     steps:
+
       - label: ":go: unit-tests"
         command: "make unit-xml"
+
       - label: ":go: integration-tests"
         command: "make integration-xml"
 

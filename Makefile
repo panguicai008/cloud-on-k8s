@@ -370,6 +370,12 @@ switch-tanzu:
 
 BUILD_PLATFORM ?= "linux/amd64,linux/arm64"
 
+buildah-login:
+	buildah login \
+		--username="$(shell vault read -field=username secret/ci/elastic-cloud-on-k8s/docker-registry)" \
+		--password="$(shell vault read -field=password secret/ci/elastic-cloud-on-k8s/docker-registry)" \
+		$(REGISTRY)
+
 docker-multiarch-build: go-generate generate-config-file 
 ifeq ($(SNAPSHOT),false)
 	@ hack/docker.sh -l -m $(OPERATOR_IMAGE)
@@ -418,6 +424,15 @@ docker-build: go-generate generate-config-file
 
 docker-push:
 	@ hack/docker.sh -l -p $(OPERATOR_IMAGE)
+
+operator-buildah: go-generate generate-config-file buildah-login
+	buildah bud . \
+		--build-arg GO_LDFLAGS='$(GO_LDFLAGS)' \
+		--build-arg GO_TAGS='$(GO_TAGS)' \
+		--build-arg VERSION='$(VERSION)' \
+		--platform $(BUILD_PLATFORM) \
+		-t $(OPERATOR_IMAGE)
+	buildah push $(OPERATOR_IMAGE)
 
 purge-gcr-images:
 	@ for i in $(gcloud container images list-tags $(BASE_IMG) | tail +3 | awk '{print $$2}'); \
@@ -479,6 +494,16 @@ e2e-docker-multiarch-build: go-generate
 		--platform $(BUILD_PLATFORM) \
 		--push \
 		-t $(E2E_IMG) .
+
+e2e-buildah: go-generate buildah-login
+	buildah bud \
+		--platform linux/$(PLATFORM) \
+		--build-arg E2E_JSON='$(E2E_JSON)' \
+		--build-arg E2E_TAGS='$(E2E_TAGS)' \
+		-f test/e2e/Dockerfile \
+		-t $(E2E_IMG) \
+		.
+	buildah push $(E2E_IMG)
 
 e2e-run: go-generate
 	@go run -tags='$(GO_TAGS)' test/e2e/cmd/main.go run \

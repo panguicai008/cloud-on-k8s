@@ -1,5 +1,6 @@
 # Docker image used for continuous integration
-FROM golang:1.18.2
+# Fedora because it ships a recent version of buildah.
+FROM fedora:36
 
 ENV GOLANGCILINT_VERSION=1.45.2
 ENV SHELLCHECK_VERSION=0.8.0
@@ -38,24 +39,20 @@ RUN curl -fsSLO https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/googl
 RUN curl -fsSLO https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl && \
     mv kubectl /usr/local/bin/kubectl && chmod +x /usr/local/bin/kubectl
 
-# Docker client to build and push images
-RUN curl -fsSLO https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VERSION}.tgz && \
-    tar xzf docker-${DOCKER_VERSION}.tgz --strip 1 -C /usr/local/bin docker/docker && \
-    rm docker-${DOCKER_VERSION}.tgz
+# buildah to build and push images
+RUN dnf install -y buildah
 
 # Docker buildx extension for building multi-arch images
-RUN mkdir -p ~/.docker/cli-plugins && \ 
+RUN mkdir -p ~/.docker/cli-plugins && \
     curl -fsSLo ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/v${DOCKER_BUILDX_VERSION}/buildx-v${DOCKER_BUILDX_VERSION}.linux-amd64 && \
     chmod a+x ~/.docker/cli-plugins/docker-buildx
 
-# xz-utils to decompress shellcheck, unzip for aws-cli, qemu-system-arm and qemu-user-static for multi-arch
-RUN apt-get update && apt-get --no-install-recommends -y install \
-    unzip xz-utils qemu-system-arm qemu-user-static && \
-    apt-get clean && apt-get autoclean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# qemu-system-arm and qemu-user-static for multi-arch
+RUN dnf -y install qemu-system-arm qemu-user-static
 
 # AWS CLI v2 to upload YAML on S3 and run eksctl
-RUN curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+RUN dnf -y install unzip && \
+    curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip -q awscliv2.zip && \
     ./aws/install && \
     rm awscliv2.zip
@@ -73,14 +70,26 @@ RUN curl -fsSLO https://github.com/gotestyourself/gotestsum/releases/download/v$
     mv gotestsum /usr/local/bin/gotestsum && chmod +x /usr/local/bin/gotestsum && \
     rm gotestsum_${GOTESTSUM_VERSION}_linux_amd64.tar.gz
 
+# eck-diagnostics
 RUN curl -fsSLO https://github.com/elastic/eck-diagnostics/releases/download/${ECK_DIAG_VERSION}/eck-diagnostics_${ECK_DIAG_VERSION}_Linux_x86_64.tar.gz && \
     tar xzf eck-diagnostics_${ECK_DIAG_VERSION}_Linux_x86_64.tar.gz && \
     mv eck-diagnostics /usr/local/bin/eck-diagnostics
 
+# EKS
 RUN curl -fsSLO "https://github.com/weaveworks/eksctl/releases/download/v${EKSCTL_VERSION}/eksctl_Linux_amd64.tar.gz" && \
     tar xzf eksctl_Linux_amd64.tar.gz && \
     mv eksctl /usr/local/bin/eksctl && \
     rm eksctl_Linux_amd64.tar.gz
 
-WORKDIR /go/src/github.com/elastic/cloud-on-k8s
+# git make
+RUN dnf -y install git make
+
+# golang
+RUN curl -Lfs -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme \
+    && chmod +x /bin/gimme
+ENV GOPATH /go
+ENV GO_VERSION=1.18.3
+RUN gimme ${GO_VERSION}
+ENV PATH /root/.gimme/versions/go${GO_VERSION}.linux.amd64/bin:${PATH}
+
 WORKDIR /
